@@ -2,55 +2,147 @@
 <html>
 <head>
     <style>
+        body {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            box-sizing: border-box;
+        }
+        
         table {
             border-collapse: collapse;
             width: 100%;
             margin: 20px 0;
+            table-layout: fixed;
         }
+        
+        /* Specific widths for table columns */
+        table th:first-child,
+        table td:first-child {
+            width: 60px;  /* Points column width */
+        }
+        
+        table th:not(:first-child),
+        table td:not(:first-child) {
+            width: calc((100% - 60px) / 3);  /* Divide remaining space equally */
+        }
+        
         th, td {
             border: 1px solid #ddd;
             padding: 8px;
             text-align: left;
+            overflow-wrap: break-word;
         }
+        
+        /* Center align the points column */
+        th:first-child,
+        td:first-child {
+            text-align: center;
+        }
+        
         th {
             background-color: #f2f2f2;
         }
+        
         .highlighted {
             background-color: #ffeb3b;
         }
+        
         .slider-container {
             margin: 20px 0;
             display: flex;
             align-items: center;
+            width: 100%;
+            max-width: 800px;
         }
+        
         .slider-label {
             width: 100px;
-            flex-shrink: 0;
+            flex: 0 0 100px;
         }
+        
         .slider-input {
             width: 200px;
+            flex: 0 0 200px;
             margin: 0 10px;
-            flex-shrink: 0;
+            -webkit-appearance: none;
+            appearance: none;
+            height: 8px;
+            background: #ddd;
+            border-radius: 4px;
+            outline: none;
         }
+        
+        /* Chrome specific styles */
+        .slider-input::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 16px;
+            height: 16px;
+            background: #4CAF50;
+            border-radius: 50%;
+            cursor: pointer;
+        }
+        
+        /* Firefox specific styles */
+        .slider-input::-moz-range-thumb {
+            width: 16px;
+            height: 16px;
+            background: #4CAF50;
+            border-radius: 50%;
+            cursor: pointer;
+            border: none;
+        }
+        
         .slider-value {
             width: 40px;
+            flex: 0 0 40px;
             text-align: right;
-            flex-shrink: 0;
         }
+        
         .definition {
             margin-left: 10px;
             color: #666;
             font-style: italic;
-            flex-grow: 1;
+            flex: 1 1 auto;
+            min-width: 0;
+            overflow: hidden;
+            text-overflow: ellipsis;
         }
+        
         .max-value {
             margin: 20px 0;
             font-size: 18px;
             font-weight: bold;
         }
+        
         .statistics {
             color: #666;
             font-size: 0.9em;
+        }
+        
+        /* Media Query for mobile devices */
+        @media (max-width: 768px) {
+            .slider-container {
+                flex-wrap: wrap;
+            }
+            
+            .slider-label {
+                width: 100%;
+                flex: 0 0 100%;
+                margin-bottom: 5px;
+            }
+            
+            .slider-input {
+                width: calc(100% - 60px);
+                flex: 1 1 auto;
+            }
+            
+            .definition {
+                width: 100%;
+                flex: 0 0 100%;
+                margin-top: 5px;
+            }
         }
     </style>
 </head>
