@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <style>
+        table {
+            border-collapse: collapse;
+            width: 100%;
+            margin: 20px 0;
+        }
+        th, td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: left;
+        }
+        th {
+            background-color: #f2f2f2;
+        }
+        .highlighted {
+            background-color: #ffeb3b;
+        }
+        .slider-container {
+            margin: 20px 0;
+            display: flex;
+            align-items: center;
+        }
+        .slider-label {
+            width: 100px;
+            flex-shrink: 0;
+        }
+        .slider-input {
+            width: 200px;
+            margin: 0 10px;
+            flex-shrink: 0;
+        }
+        .slider-value {
+            width: 40px;
+            text-align: right;
+            flex-shrink: 0;
+        }
+        .definition {
+            margin-left: 10px;
+            color: #666;
+            font-style: italic;
+            flex-grow: 1;
+        }
+        .max-value {
+            margin: 20px 0;
+            font-size: 18px;
+            font-weight: bold;
+        }
+        .statistics {
+            color: #666;
+            font-size: 0.9em;
+        }
+    </style>
+</head>
+<body>
+    <div class="slider-container">
+        <span class="slider-label">Complexity:</span>
+        <input type="range" id="complexitySlider" class="slider-input" min="1" max="10" value="1">
+        <span class="slider-value" id="complexityValue">1</span>
+        <span class="definition" id="complexityDefinition">Single straightforward task</span>
+    </div>
+    <div class="slider-container">
+        <span class="slider-label">Effort:</span>
+        <input type="range" id="effortSlider" class="slider-input" min="1" max="10" value="1">
+        <span class="slider-value" id="effortValue">1</span>
+        <span class="definition" id="effortDefinition">< 2 hours</span>
+    </div>
+    <div class="slider-container">
+        <span class="slider-label">Uncertainty:</span>
+        <input type="range" id="uncertaintySlider" class="slider-input" min="1" max="10" value="1">
+        <span class="slider-value" id="uncertaintyValue">1</span>
+        <span class="definition" id="uncertaintyDefinition">Clear requirements & solution</span>
+    </div>
+
+    <div class="max-value">
+        The maximum value is <span id="maxValue">1</span>.<br />
+        The mean is <span id="meanValue">1</span>, standard deviation <span id="stdValue">0</span>, so the closest points value is <span id="closestValue">1</span>.
+    </div>
+
+    <table id="estimationTable">
+        <tr>
+            <th>Points</th>
+            <th>Complexity</th>
+            <th>Effort</th>
+            <th>Uncertainty</th>
+        </tr>
+        <tr data-points="1">
+            <td>1</td>
+            <td>Single straightforward task</td>
+            <td>< 2 hours</td>
+            <td>Clear requirements & solution</td>
+        </tr>
+        <tr data-points="2">
+            <td>2</td>
+            <td>Simple task with known solution</td>
+            <td>2-4 hours</td>
+            <td>Minor clarifications needed</td>
+        </tr>
+        <tr data-points="3">
+            <td>3</td>
+            <td>Multiple simple tasks</td>
+            <td>4-8 hours</td>
+            <td>Some unknowns exist</td>
+        </tr>
+        <tr data-points="5">
+            <td>5</td>
+            <td>Multiple interconnected tasks</td>
+            <td>1-2 days</td>
+            <td>Several unknowns</td>
+        </tr>
+        <tr data-points="8">
+            <td>8</td>
+            <td>Complex problem, clear approach</td>
+            <td>2-3 days</td>
+            <td>Significant unknowns</td>
+        </tr>
+        <tr data-points="13">
+            <td>13</td>
+            <td>Complex problem, multiple approaches</td>
+            <td>3-5 days</td>
+            <td>Many dependencies</td>
+        </tr>
+        <tr data-points="21">
+            <td>21</td>
+            <td>System-wide changes needed</td>
+            <td>1-2 weeks</td>
+            <td>Technical feasibility unclear</td>
+        </tr>
+        <tr data-points="34">
+            <td>34</td>
+            <td>Multiple system interactions</td>
+            <td>2-3 weeks</td>
+            <td>High risk areas identified</td>
+        </tr>
+        <tr data-points="55">
+            <td>55</td>
+            <td>Architectural changes required</td>
+            <td>3-4 weeks</td>
+            <td>Major unknown dependencies</td>
+        </tr>
+        <tr data-points="89">
+            <td>89</td>
+            <td>Too complex to estimate</td>
+            <td>> 1 month</td>
+            <td>Cannot estimate confidently</td>
+        </tr>
+    </table>
+
+    <script>
+        const pointsValues = [1, 2, 3, 5, 8, 13, 21, 34, 55, 89];
+        
+        function updateHighlighting(sliderValue, columnIndex) {
+            const rows = document.querySelectorAll('#estimationTable tr');
+            // Clear previous highlighting for this column
+            rows.forEach(row => {
+                row.cells[columnIndex]?.classList.remove('highlighted');
+            });
+            // Add highlighting to the corresponding row
+            const rowIndex = Math.min(Math.max(sliderValue - 1, 0), rows.length - 2);
+            rows[rowIndex + 1].cells[columnIndex].classList.add('highlighted');
+            return rows[rowIndex + 1].cells[columnIndex].textContent;
+        }
+
+        function calculateStatistics(values) {
+            // Calculate mean
+            const mean = values.reduce((a, b) => a + b, 0) / values.length;
+            
+            // Calculate standard deviation
+            const variance = values.reduce((acc, val) => acc + Math.pow(val - mean, 2), 0) / values.length;
+            const stdDev = Math.sqrt(variance);
+            
+            return {
+                mean: mean.toFixed(1),
+                stdDev: stdDev.toFixed(1)
+            };
+        }
+
+        function findClosestValue(mean) {
+            return pointsValues.reduce((prev, curr) => {
+                return Math.abs(curr - mean) < Math.abs(prev - mean) ? curr : prev;
+            });
+        }
+
+        function updateStatistics() {
+            const complexity = pointsValues[document.getElementById('complexitySlider').value - 1];
+            const effort = pointsValues[document.getElementById('effortSlider').value - 1];
+            const uncertainty = pointsValues[document.getElementById('uncertaintySlider').value - 1];
+            
+            const values = [complexity, effort, uncertainty];
+            const stats = calculateStatistics(values);
+            const closestValue = findClosestValue(parseFloat(stats.mean));
+            
+            document.getElementById('maxValue').textContent = Math.max(...values);
+            document.getElementById('meanValue').textContent = stats.mean;
+            document.getElementById('stdValue').textContent = stats.stdDev;
+            document.getElementById('closestValue').textContent = closestValue;
+        }
+
+        // Initialize highlighting and definitions
+        function initializeValues() {
+            // Initialize Complexity
+            updateHighlighting(1, 1);
+            document.getElementById('complexityDefinition').textContent = document.querySelector('#estimationTable tr:nth-child(2) td:nth-child(2)').textContent;
+            
+            // Initialize Effort
+            updateHighlighting(1, 2);
+            document.getElementById('effortDefinition').textContent = document.querySelector('#estimationTable tr:nth-child(2) td:nth-child(3)').textContent;
+            
+            // Initialize Uncertainty
+            updateHighlighting(1, 3);
+            document.getElementById('uncertaintyDefinition').textContent = document.querySelector('#estimationTable tr:nth-child(2) td:nth-child(4)').textContent;
+            
+            // Initialize statistics
+            updateStatistics();
+        }
+
+        // Complexity slider
+        const complexitySlider = document.getElementById('complexitySlider');
+        const complexityValue = document.getElementById('complexityValue');
+        const complexityDefinition = document.getElementById('complexityDefinition');
+        complexitySlider.addEventListener('input', (e) => {
+            const value = e.target.value;
+            complexityValue.textContent = pointsValues[value - 1];
+            complexityDefinition.textContent = updateHighlighting(value, 1);
+            updateStatistics();
+        });
+
+        // Effort slider
+        const effortSlider = document.getElementById('effortSlider');
+        const effortValue = document.getElementById('effortValue');
+        const effortDefinition = document.getElementById('effortDefinition');
+        effortSlider.addEventListener('input', (e) => {
+            const value = e.target.value;
+            effortValue.textContent = pointsValues[value - 1];
+            effortDefinition.textContent = updateHighlighting(value, 2);
+            updateStatistics();
+        });
+
+        // Uncertainty slider
+        const uncertaintySlider = document.getElementById('uncertaintySlider');
+        const uncertaintyValue = document.getElementById('uncertaintyValue');
+        const uncertaintyDefinition = document.getElementById('uncertaintyDefinition');
+        uncertaintySlider.addEventListener('input', (e) => {
+            const value = e.target.value;
+            uncertaintyValue.textContent = pointsValues[value - 1];
+            uncertaintyDefinition.textContent = updateHighlighting(value, 3);
+            updateStatistics();
+        });
+
+        // Initialize values when the page loads
+        window.addEventListener('load', initializeValues);
+    </script>
+</body>
+</html>
