@@ -177,8 +177,11 @@
     </div>
 
     <div class="max-value">
-        The maximum value is <span id="maxValue">1</span>.<br />
-        The mean is <span id="meanValue">1</span>, standard deviation <span id="stdValue">0</span>, so the closest points value is <span id="closestValue">1</span>.
+        <div><span id="minValue">1</span> is the minimum value used (<span id="minDimension">uncertainty</span>).</div>
+        <div><span id="meanValue">1</span> is the mean value with a standard deviation of <span id="stdValue">0</span>.</div>
+        <div><span id="closestValue">1</span> is the closest point value.</div>
+        <div><span id="closestOverMean">1</span> is the closest point value over the mean.</div>
+        <div><span id="maxValue">1</span> is the maximum value (<span id="maxDimension">complexity</span>).</div>
     </div>
 
     <table id="estimationTable">
@@ -291,13 +294,53 @@
             const uncertainty = pointsValues[document.getElementById('uncertaintySlider').value - 1];
 
             const values = [complexity, effort, uncertainty];
+            const dimensions = ['complexity', 'effort', 'uncertainty'];
             const stats = calculateStatistics(values);
-            const closestValue = findClosestValue(parseFloat(stats.mean));
 
-            document.getElementById('maxValue').textContent = Math.max(...values);
+            // Find min and max
+            const maxValue = Math.max(...values);
+            const minValue = Math.min(...values);
+
+            // Find all dimensions with max and min values
+            const maxDimensions = dimensions.filter((_, index) => values[index] === maxValue);
+            const minDimensions = dimensions.filter((_, index) => values[index] === minValue);
+
+            // Format dimensions text
+            const maxDimensionsText = formatDimensions(maxDimensions);
+            const minDimensionsText = formatDimensions(minDimensions);
+
+            // Find closest values
+            const mean = parseFloat(stats.mean);
+            const closestValue = findClosestValue(mean);
+            const closestOverMean = findClosestValueOver(mean);
+
+            // Update all statistics
+            document.getElementById('maxValue').textContent = maxValue;
+            document.getElementById('maxDimension').textContent = maxDimensionsText;
+            document.getElementById('minValue').textContent = minValue;
+            document.getElementById('minDimension').textContent = minDimensionsText;
             document.getElementById('meanValue').textContent = stats.mean;
             document.getElementById('stdValue').textContent = stats.stdDev;
             document.getElementById('closestValue').textContent = closestValue;
+            document.getElementById('closestOverMean').textContent = closestOverMean;
+        }
+
+        function formatDimensions(dimensions) {
+            if (dimensions.length === 1) {
+                return dimensions[0];
+            } else if (dimensions.length === 2) {
+                return `${dimensions[0]} and ${dimensions[1]}`;
+            } else {
+                return `${dimensions[0]}, ${dimensions[1]} and ${dimensions[2]}`;
+            }
+        }
+
+        function findClosestValueOver(mean) {
+            return pointsValues.reduce((prev, curr) => {
+                if (curr < mean) return prev;
+                if (prev === null) return curr;
+                return Math.abs(curr - mean) < Math.abs(prev - mean) ? curr : prev;
+            }, null) || pointsValues[pointsValues.length - 1];
         }
 
         // Initialize highlighting and definitions
