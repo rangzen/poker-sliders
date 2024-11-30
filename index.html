@@ -8,46 +8,46 @@
             padding: 20px;
             box-sizing: border-box;
         }
-        
+
         table {
             border-collapse: collapse;
             width: 100%;
             margin: 20px 0;
             table-layout: fixed;
         }
-        
+
         /* Specific widths for table columns */
         table th:first-child,
         table td:first-child {
             width: 60px;  /* Points column width */
         }
-        
+
         table th:not(:first-child),
         table td:not(:first-child) {
             width: calc((100% - 60px) / 3);  /* Divide remaining space equally */
         }
-        
+
         th, td {
             border: 1px solid #ddd;
             padding: 8px;
             text-align: left;
             overflow-wrap: break-word;
         }
-        
+
         /* Center align the points column */
         th:first-child,
         td:first-child {
             text-align: center;
         }
-        
+
         th {
             background-color: #f2f2f2;
         }
-        
+
         .highlighted {
             background-color: #ffeb3b;
         }
-        
+
         .slider-container {
             margin: 20px 0;
             display: flex;
@@ -55,12 +55,12 @@
             width: 100%;
             max-width: 800px;
         }
-        
+
         .slider-label {
             width: 100px;
             flex: 0 0 100px;
         }
-        
+
         .slider-input {
             width: 200px;
             flex: 0 0 200px;
@@ -72,7 +72,7 @@
             border-radius: 4px;
             outline: none;
         }
-        
+
         /* Chrome specific styles */
         .slider-input::-webkit-slider-thumb {
             -webkit-appearance: none;
@@ -83,7 +83,7 @@
             border-radius: 50%;
             cursor: pointer;
         }
-        
+
         /* Firefox specific styles */
         .slider-input::-moz-range-thumb {
             width: 16px;
@@ -93,13 +93,13 @@
             cursor: pointer;
             border: none;
         }
-        
+
         .slider-value {
             width: 40px;
             flex: 0 0 40px;
             text-align: right;
         }
-        
+
         .definition {
             margin-left: 10px;
             color: #666;
@@ -109,40 +109,50 @@
             overflow: hidden;
             text-overflow: ellipsis;
         }
-        
+
         .max-value {
             margin: 20px 0;
             font-size: 18px;
             font-weight: bold;
         }
-        
+
         .statistics {
             color: #666;
             font-size: 0.9em;
         }
-        
+
         /* Media Query for mobile devices */
         @media (max-width: 768px) {
             .slider-container {
                 flex-wrap: wrap;
             }
-            
+
             .slider-label {
                 width: 100%;
                 flex: 0 0 100%;
                 margin-bottom: 5px;
             }
-            
+
             .slider-input {
                 width: calc(100% - 60px);
                 flex: 1 1 auto;
             }
-            
+
             .definition {
                 width: 100%;
                 flex: 0 0 100%;
                 margin-top: 5px;
             }
+        }
+
+        /* Add cursor pointer and hover effect for clickable cells */
+        td:not(:first-child) {
+            cursor: pointer;
+            border: 1px solid #ddd;
+            transition: border-color 0.15s ease;
+        }
+        td:not(:first-child):hover {
+            border-color: #666;
         }
     </style>
 </head>
@@ -242,7 +252,7 @@
 
     <script>
         const pointsValues = [1, 2, 3, 5, 8, 13, 21, 34, 55, 89];
-        
+
         function updateHighlighting(sliderValue, columnIndex) {
             const rows = document.querySelectorAll('#estimationTable tr');
             // Clear previous highlighting for this column
@@ -258,11 +268,11 @@
         function calculateStatistics(values) {
             // Calculate mean
             const mean = values.reduce((a, b) => a + b, 0) / values.length;
-            
+
             // Calculate standard deviation
             const variance = values.reduce((acc, val) => acc + Math.pow(val - mean, 2), 0) / values.length;
             const stdDev = Math.sqrt(variance);
-            
+
             return {
                 mean: mean.toFixed(1),
                 stdDev: stdDev.toFixed(1)
@@ -279,11 +289,11 @@
             const complexity = pointsValues[document.getElementById('complexitySlider').value - 1];
             const effort = pointsValues[document.getElementById('effortSlider').value - 1];
             const uncertainty = pointsValues[document.getElementById('uncertaintySlider').value - 1];
-            
+
             const values = [complexity, effort, uncertainty];
             const stats = calculateStatistics(values);
             const closestValue = findClosestValue(parseFloat(stats.mean));
-            
+
             document.getElementById('maxValue').textContent = Math.max(...values);
             document.getElementById('meanValue').textContent = stats.mean;
             document.getElementById('stdValue').textContent = stats.stdDev;
@@ -295,15 +305,15 @@
             // Initialize Complexity
             updateHighlighting(1, 1);
             document.getElementById('complexityDefinition').textContent = document.querySelector('#estimationTable tr:nth-child(2) td:nth-child(2)').textContent;
-            
+
             // Initialize Effort
             updateHighlighting(1, 2);
             document.getElementById('effortDefinition').textContent = document.querySelector('#estimationTable tr:nth-child(2) td:nth-child(3)').textContent;
-            
+
             // Initialize Uncertainty
             updateHighlighting(1, 3);
             document.getElementById('uncertaintyDefinition').textContent = document.querySelector('#estimationTable tr:nth-child(2) td:nth-child(4)').textContent;
-            
+
             // Initialize statistics
             updateStatistics();
         }
@@ -341,8 +351,43 @@
             updateStatistics();
         });
 
+        // Add click handlers to table cells
+        function initializeTableClicks() {
+            const rows = document.querySelectorAll('#estimationTable tr');
+            rows.forEach((row, rowIndex) => {
+                if (rowIndex > 0) { // Skip header row
+                    // Complexity column
+                    row.cells[1].addEventListener('click', () => {
+                        complexitySlider.value = rowIndex;
+                        complexityValue.textContent = pointsValues[rowIndex - 1];
+                        complexityDefinition.textContent = updateHighlighting(rowIndex, 1);
+                        updateStatistics();
+                    });
+
+                    // Effort column
+                    row.cells[2].addEventListener('click', () => {
+                        effortSlider.value = rowIndex;
+                        effortValue.textContent = pointsValues[rowIndex - 1];
+                        effortDefinition.textContent = updateHighlighting(rowIndex, 2);
+                        updateStatistics();
+                    });
+
+                    // Uncertainty column
+                    row.cells[3].addEventListener('click', () => {
+                        uncertaintySlider.value = rowIndex;
+                        uncertaintyValue.textContent = pointsValues[rowIndex - 1];
+                        uncertaintyDefinition.textContent = updateHighlighting(rowIndex, 3);
+                        updateStatistics();
+                    });
+                }
+            });
+        }
+
         // Initialize values when the page loads
-        window.addEventListener('load', initializeValues);
+        window.addEventListener('load', () => {
+            initializeValues();
+            initializeTableClicks();
+        });
     </script>
 </body>
 </html>
