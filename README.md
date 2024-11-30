@@ -5,6 +5,8 @@ A simple planning poker tool to help determine the "right" story point value.
 Try it online at [poker-sliders](https://rangzen.github.io/poker-sliders).
 
 - [Poker Sliders](#poker-sliders)
+  - [Features](#features)
+  - [Usage](#usage)
   - [Maximum Value vs Mean Value: Which to Choose?](#maximum-value-vs-mean-value-which-to-choose)
     - [Maximum Value](#maximum-value)
       - [Advantages for maximum value](#advantages-for-maximum-value)
@@ -13,6 +15,20 @@ Try it online at [poker-sliders](https://rangzen.github.io/poker-sliders).
       - [Advantages for mean value](#advantages-for-mean-value)
       - [Disadvantages for mean value](#disadvantages-for-mean-value)
     - [Understanding Standard Deviation](#understanding-standard-deviation)
+
+## Features
+
+- Three sliders for Complexity, Effort, and Uncertainty dimensions
+- Interactive table with clickable cells to quickly set values
+- Real-time calculation of maximum and mean values
+- Standard deviation indicator for value spread
+- Simple and intuitive interface (that’s a very personal pref 😁)
+
+## Usage
+
+1. Adjust sliders to set values for each dimension
+2. Alternatively, click directly on table cells to set values
+3. Use either the maximum value or mean value based on your team's preference
 
 ## Maximum Value vs Mean Value: Which to Choose?
 
